@@ -1,0 +1,4 @@
+playwright==1.40.0
+psycopg2-binary
+urllib3
+python-dotenv
