@@ -2,8 +2,8 @@ name: Run Web Metrics Scraper
 
 on:
   schedule:
-    - cron: "0 */6 * * *"  # Ejecuta cada 6 horas
-  workflow_dispatch:        # También puedes ejecutarlo manualmente desde GitHub Actions
+    - cron: "0 */6 * * *"  # cada 6 horas
+  workflow_dispatch:        # también permite ejecución manual
 
 jobs:
   run-scraper:
@@ -21,6 +21,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: |
+          playwright install --with-deps
 
       - name: Run scraper
         env:
