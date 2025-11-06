@@ -1,0 +1,29 @@
+name: Run Web Metrics Scraper
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # Ejecuta cada 6 horas
+  workflow_dispatch:        # También puedes ejecutarlo manualmente desde GitHub Actions
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run scraper
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python scraper/scraper_playwright.py
