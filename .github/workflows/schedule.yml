@@ -1,34 +1,43 @@
-name: Run Web Metrics Scraper
+name: scheduled-scrape
 
 on:
   schedule:
-    - cron: "0 */6 * * *"  # cada 6 horas
-  workflow_dispatch:        # también permite ejecución manual
+    - cron: '0 3,11,19 * * *'   # Ejecuta 3 veces al día (Bogotá)
+  workflow_dispatch:             # Permite ejecutarlo manualmente
 
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Install Playwright browsers (Ubuntu 24.04 fix)
-        run: |
-          pip install playwright
           playwright install chromium
 
       - name: Run scraper
+        run: |
+          mkdir -p artifacts
+          python scraper/scraper_playwright.py > artifacts/results.json
+        continue-on-error: true
+
+      - name: Save data to DB
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          python scraper/scraper_playwright.py
+          python scraper/save_to_db.py artifacts/results.json
+        continue-on-error: true
+
+      - name: Upload scrape results
+        uses: actions/upload-artifact@v4
+        with:
+          name: results
+          path: artifacts/results.json
